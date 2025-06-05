@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Time settings
-t_max = 50
+t_max = 30
 h = 0.1
 time = np.arange(0, t_max + h, h)
 
