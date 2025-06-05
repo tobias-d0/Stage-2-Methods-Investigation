@@ -7,24 +7,24 @@ h = 0.1
 time = np.arange(0, t_max + h, h)
 
 # Initial populations
-P_deer_0 = 20
-P_squirrel_0 = 200
-P_turkey_0 = 60
+P_deer_0 = 5
+P_squirrel_0 = 23
+P_turkey_0 = 35
 
 # Carrying capacities and growth rates
-L0 = {'deer': 400, 'squirrel': 4000, 'turkey': 300}
-k0 = {'deer': 0.9, 'squirrel': 0.5, 'turkey': 0.12}
+L0 = {'deer': 400, 'squirrel': 4000, 'turkey': 500}
+k0 = {'deer': 0.9, 'squirrel': 0.5, 'turkey': 0.32}
 
 # Interaction coefficients
 c = {
-    'deer': {'squirrel': 0.01, 'turkey': 0.1},
-    'squirrel': {'deer': 0.05, 'turkey': 0.03},
-    'turkey': {'deer': 0.03, 'squirrel': 0.01},
+    'deer': {'squirrel': 0.03, 'turkey': 0.04},
+    'squirrel': {'deer': 0.01, 'turkey': 0.04},
+    'turkey': {'deer': 0.13, 'squirrel': 0.08},
 }
 d = {
-    'deer': {'squirrel': 0.0001, 'turkey': 0.001},
-    'squirrel': {'deer': 0.0003, 'turkey': 0.0002},
-    'turkey': {'deer': 0.0002, 'squirrel': 0.0001},
+    'deer': {'squirrel': 0.0002, 'turkey': 0.0004},
+    'squirrel': {'deer': 0.0002, 'turkey': 0.0005},
+    'turkey': {'deer': 0.0011, 'squirrel': 0.0006},
 }
 
 # Function to calculate dP/dt
@@ -51,15 +51,54 @@ for i in range(1, len(time)):
 # Plotting
 plt.figure(figsize=(12, 6))
 
+# Draw arrows for x and y axis using annotate
+plt.annotate('', xy=(max(time)+0.3, 0), xytext=(0, 0),
+             arrowprops=dict(arrowstyle="->", lw=1.5, color='black', relpos=(0,0)), annotation_clip=False)
+
+# Y-axis arrow (remains the same)
+plt.annotate('', xy=(0, np.max(P_euler)*1.02), xytext=(0, 0),
+             arrowprops=dict(arrowstyle="->", lw=1.5, color='black', relpos=(0,0)), annotation_clip=False)
+
 species_names = ['White-tailed Deer', 'Eastern Gray Squirrel', 'Eastern Wild Turkey']
 colors = ['green', 'gray', 'brown']
 
 for idx in range(3):
     plt.plot(time, P_euler[:, idx], '-', label=f'{species_names[idx]}', color=colors[idx])
+    x_end = time[-1]
+    x_prev = time[-2]
+    y_end = P_euler[-1, idx]
+    y_prev = P_euler[-2, idx]
+
+    # Calculate direction (dx, dy)
+    dx = x_end - x_prev
+    dy = y_end - y_prev
+
+    # Draw arrow at the end of the curve
+    plt.annotate('', xy=(x_end, y_end), xytext=(x_prev, y_prev),
+                 arrowprops=dict(arrowstyle='->', color=colors[idx], lw=1.5))
+    
+
 
 plt.xlabel("Time (years)")
 plt.ylabel("Population")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
+plt.xlim(0, t_max)
+max_carrying_capacity = max(L0.values())
+plt.ylim(0, max_carrying_capacity*1.02) # Add 2% margin
+ax = plt.gca()  # Get current axes
+
+# Remove top and right spines
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+
+# Move left and bottom spine to zero position
+ax.spines['left'].set_position('zero')
+ax.spines['bottom'].set_position('zero')
+
+# Hide ticks where axes cross
+ax.xaxis.set_ticks_position('bottom')
+ax.yaxis.set_ticks_position('left')
+
 plt.show()
